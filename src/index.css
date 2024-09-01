@@ -1,0 +1,23 @@
+/* This file contains base styles. */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    @apply size-full;
+  }
+
+  body {
+    @apply bg-zinc-950;
+    @apply text-white text-base antialiased;
+  }
+
+  /* Popup styles. */
+  .popup {
+    @apply size-[400px] p-5;
+  }
+}
