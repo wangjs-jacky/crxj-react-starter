@@ -13,9 +13,13 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      input: {
-        welcome: resolve(__dirname, "./src/pages/welcome/index.html"),
-      },
+      // 新增的 Tab 页面，由于没有 crxjs 未内置处理，需手动 rollup 配置
+      // input: {
+      //   welcome: resolve(__dirname, "./src/pages/welcome/index.html"),
+      // },
+      // input: {
+      //   xxx: resolve(__dirname, "./src/scripts/content-scripts.tsx"),
+      // }
     },
   },
 });

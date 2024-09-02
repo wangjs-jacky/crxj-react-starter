@@ -6,14 +6,22 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "release": "npm run build && npm-build-zip --source dist --name release --name_only true"
+    "release": "npm run build && npm-build-zip --source dist --name release --name_only true",
+    "test:unit": "vitest run",
+    "test:force": "vitest run -u"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.1.0",
     "autoprefixer": "^10.4.19",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.437.0",
     "postcss": "^8.4.38",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "tailwindcss": "^3.4.3"
+    "tailwind-merge": "^2.5.2",
+    "tailwindcss": "^3.4.3",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^1.0.14",
@@ -24,6 +32,7 @@
     "@vitejs/plugin-react": "^1.3.0",
     "npm-build-zip": "^1.0.4",
     "typescript": "^4.6.3",
-    "vite": "^2.9.9"
+    "vite": "^2.9.9",
+    "vitest": "^1.0.2"
   }
 }
