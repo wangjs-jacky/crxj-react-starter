@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../ui/select";
 import { SheetHeader, SheetTitle } from "../../ui/sheet";
 import { Textarea } from "../../ui/textarea";
@@ -13,11 +13,13 @@ async function getOptions() {
 
 export const SelectTestID = () => {
   const [pageKey, setPageKey] = useState('product-detail');
-  const [testIDMap, setTestIDMap] = useState({
-    "product-detail": "组件1:testID1\n组件2:testID2",
-    "product-detail-snapshot": "组件3:testID3\n组件4:testID4"
-  } as Record<string, string>);
-  const [textarea, setTextAreaValue] = useState(testIDMap["product-detail"]);
+  const [testIDMap, setTestIDMap] = useState<Record<string, string>>({
+  });
+  const [textarea, setTextAreaValue] = useState("");
+
+  useEffect(() => {
+    setTextAreaValue(testIDMap[pageKey])
+  }, [testIDMap, pageKey])
 
   useEffect(() => {
     // 发送获取事件
@@ -25,13 +27,12 @@ export const SelectTestID = () => {
 
     // 获取配置信息 testIDMap
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      if (message.type === "get_testID_map1") {
+      if (message.type === "get_testID_map") {
         const testIDMap = message.data || {};
-        console.log("wjs: testIDMap", testIDMap);
         setTestIDMap(testIDMap)
       }
     });
-  }, [])
+  }, []);
 
   return (
     <>
@@ -42,7 +43,7 @@ export const SelectTestID = () => {
         setPageKey(key);
         setTextAreaValue(testIDMap[key])
       }} value={pageKey}>
-        <SelectTrigger className="w-full my-2" >
+        <SelectTrigger className="w-full my-2">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -54,6 +55,10 @@ export const SelectTestID = () => {
       <Textarea placeholder="组件1: testID-1
 组件2: testID-2" id="message-2" className="my-2" value={textarea}
         onChange={async (e) => {
+          setTestIDMap({
+            ...testIDMap,
+            [pageKey]: e.target.value
+          })
           setTextAreaValue(e.target.value)
           saveOptions(pageKey, e.target.value)
         }} />

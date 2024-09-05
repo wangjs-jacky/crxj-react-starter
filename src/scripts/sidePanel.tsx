@@ -18,14 +18,10 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useEffect, useState } from "react"
 
-
-
-
 export function SidePanel() {
   const [title, setTitle] = useState('');
   const [caseId, setCaseId] = useState('');
   const [componentName, setComponentName] = useState('renderPage');
-
 
   useEffect(() => {
     // 获取 tab 信息
@@ -46,11 +42,11 @@ export function SidePanel() {
   }, [])
 
   return (
-    <Sheet >
+    <Sheet>
       <SheetTrigger asChild>
         <Badge className="cursor-pointer" variant="secondary">配置当前测试case</Badge>
       </SheetTrigger>
-      <SheetContent className="z-50">
+      <SheetContent className="overflow-auto">
         <SheetHeader>
           <SheetTitle>编辑测试信息</SheetTitle>
           <SheetDescription>
@@ -94,7 +90,7 @@ export function SidePanel() {
                   componentName
                 }
               });
-            }}>保存至本地</Button>
+            }}>导出配置</Button>
           </SheetClose>
         </SheetFooter>
       </SheetContent>

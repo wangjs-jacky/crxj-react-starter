@@ -43,6 +43,8 @@ export default defineManifest(async (env) => ({
     "open_in_tab": true
   },
   permissions: [
-    "downloads"
+    "downloads",
+    "tabs",
+    "storage"
   ]
 }));
