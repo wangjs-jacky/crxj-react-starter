@@ -10,6 +10,7 @@ console.log("🔥 Hello from content script (src/scripts/content-scripts.ts)");
 // 监听鼠标移动事件
 document.addEventListener('mouseover', () => {
   addElement();
+  parseTableElement();
 }, true);
 // document.addEventListener('DOMContentLoaded', () => {
 //   addElement();
@@ -20,12 +21,14 @@ function parseTableElement() {
   const result: { 步骤编号: string | null; 步骤描述: any; 预期结果: any; }[] = [];
   tableRows.forEach(row => {
     const stepNumber = row.querySelector('td:nth-child(1) span').textContent;
+    // @ts-ignore
     const stepDescription = row.querySelector('td:nth-child(2) textarea').value;
+    // @ts-ignore
     const expectedResults = row.querySelector('td:nth-child(3) textarea').value;
     result.push({
       '步骤编号': stepNumber,
-      '步骤描述': stepDescription,
-      '预期结果': expectedResults
+      '步骤描述': stepDescription.replaceAll("“", "\"").replaceAll("”", "\""),
+      '预期结果': expectedResults.replaceAll("“", "\"").replaceAll("”", "\""),
     });
   });
   chrome.runtime.sendMessage({ type: 'parseHtml', data: result });

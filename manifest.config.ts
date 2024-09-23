@@ -23,15 +23,19 @@ export default defineManifest(async (env) => ({
   content_scripts: [
     {
       // 这边为什么可以使用 <> 去使用，非常 nice 的想法
-      matches: ["<all_urls>"],
+      // matches: ["<all_urls>"],
+      matches: [
+        "https://testhub.package.ctripcorp.com/*",
+        "file:///Users/jiashengwang/Downloads/*"
+      ],
       js: ["src/scripts/content-scripts.tsx"],
       run_at: "document_end"
     },
   ],
-  // 新增 Chrome Tab 栏
-  chrome_url_overrides: {
-    newtab: "src/pages/new-tab/index.html",
-  },
+  // // 新增 Chrome Tab 栏
+  // chrome_url_overrides: {
+  //   newtab: "src/pages/new-tab/index.html",
+  // },
   icons: {
     "16": "src/assets/icons/16x16.png",
     "32": "src/assets/icons/32x32.png",
@@ -45,6 +49,8 @@ export default defineManifest(async (env) => ({
   permissions: [
     "downloads",
     "tabs",
-    "storage"
+    "storage",
+    "clipboardWrite",
+    "clipboardRead",
   ]
 }));

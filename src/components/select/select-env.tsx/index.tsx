@@ -4,12 +4,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState } from "react";
 
 // const mockMap = {
-//   "mock-env-1": `// 导入 product-detail 公共 mock 配置
-// import "../../../mock-env/common-config/activity-product-detail";
+//   "mock-env-1": `// 导入 xtaro-ticket 公共 mock 配置
+// import "../../../mock-env/common-config/activity-xtaro-ticket";
 
 // import React from "react";
 // import { fireEvent, render, waitFor, type RenderResult } from "@testing-library/react-native";
-// import Detail from "../../../../src/pages/xtnt/business/detail/activity-product-detail/detail";
+// import Detail from "../../../../src/pages/xtnt/business/detail/activity-xtaro-ticket/detail";
 
 // import {
 //     expectAttrsExists,

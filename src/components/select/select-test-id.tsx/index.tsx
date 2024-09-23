@@ -12,7 +12,7 @@ async function getOptions() {
 }
 
 export const SelectTestID = () => {
-  const [pageKey, setPageKey] = useState('product-detail');
+  const [pageKey, setPageKey] = useState('xtaro-ticket');
   const [testIDMap, setTestIDMap] = useState<Record<string, string>>({
   });
   const [textarea, setTextAreaValue] = useState("");
