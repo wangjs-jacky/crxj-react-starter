@@ -38,7 +38,7 @@ export function replacePlaceholders(str, obj) {
 
   return {
     result,
-    notFoundTestID: Array.from(notFoundTestID).join("")
+    notFoundTestID: Array.from(notFoundTestID).join(",")
   };
 }
 
@@ -67,7 +67,9 @@ export function findAllMatches(str) {
     /展示/g,
     /,/g,
     /，/g,
-    /浮层关闭/g
+    /浮层关闭/g,
+    /暗文展示/g,
+    /\./g
   ];
 
   let regexPatterns = [
@@ -124,6 +126,21 @@ export function findAllMatches(str) {
   }
 
   let filterdArr = extractCharacters(str, mergeIntervals(allIndices));
- 
-  return filterdArr.join(" ");
+  const content = filterdArr.join(" ");
+
+  const _content = replaceStr(content);
+  return _content;
+}
+
+function replaceStr(str) {
+  // 暗纹展示 "xxx" → "{@placeholder: xxx}"
+  str = str.replace(/暗文展示\s*"([^"]*?)"/g, (match, p1) => {
+    return `{@placeholder: ${p1}}`
+  })
+
+  // 浮层关闭
+  str = str.replace(/(\[([^\]]*?)\])\s*浮层关闭/g, (match, p1) => {
+    return `不存在 ${p1}`
+  })
+  return str;
 }

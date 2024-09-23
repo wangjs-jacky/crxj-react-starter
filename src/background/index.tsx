@@ -170,14 +170,8 @@ let result: any[] = [];
 chrome.runtime.onMessage.addListener(async function (message, sender, sendResponse) {
   const { type, command, data } = message;
 
-  const steps = result.map(res => {
-    // const isTag = (!!res['步骤描述'] && !!res['步骤描述']) ? "♀" : "";
-    // console.log("wjs: 111", res['步骤描述'], res['步骤描述'], (res['步骤描述'] && res['步骤描述']));
-    const isTag = "♀";
-    const desc = preprocess(res['步骤描述'] || "");
-    const expect = preprocess(res['预期结果'] || "");
-    return `${res['步骤编号']}. ${desc} ${isTag} ${expect}\n`;
-  })
+  let steps = []
+
 
   switch (type || command) {
     case 'down':
@@ -187,6 +181,13 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
 
     // 剪贴板拷贝2
     case 'copyToClipboard2':
+      steps = result.map(res => {
+        let desc = preprocess(res['步骤描述'] || "");
+        desc = desc ? desc + ".": "";
+        let  expect = preprocess(res['预期结果'] || "");
+        expect = expect ? expect + ".": "";
+        return `${res['步骤编号']}. ${desc} ${expect}\n`;
+      })
       const testIDObj = convertToObj(testIDStr);
       const { result: _steps, notFoundTestID } = replacePlaceholders(steps.join("&&||"), testIDObj);
       const obj = {
@@ -202,6 +203,12 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
 
     // 剪贴板功能1
     case 'copyToClipboard':
+      steps = result.map(res => {
+        const isTag = "♀";
+        const desc = preprocess(res['步骤描述'] || "");
+        const expect = preprocess(res['预期结果'] || "");
+        return `${res['步骤编号']}. ${desc} ${isTag} ${expect}\n`;
+      })
       const contentStr = steps.join("");
       const testIDObj2 = convertToObj(testIDStr);
       const { notFoundTestID: notFoundTestID2 } = replacePlaceholders(contentStr, testIDObj2);
@@ -277,7 +284,5 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
 //   // 下载 ？是否存在 ts 类型
 //   chrome.downloads.download(options)
 // }
-
-
 
 export { };
