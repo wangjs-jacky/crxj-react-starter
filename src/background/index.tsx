@@ -10,7 +10,7 @@ const initTestMap = `全局模块: global-testID
 联系电话输入框: booking_input_component_联系电话_self
 证件有效期输入框: booking_input_component_证件有效期
 证件签发日期输入框: booking_input_component_证件签发日期
-国家/地区选择器: booking_input_component_国家/地区
+国家/地区选择器: booking_input_component_国家/地区_self
 出生地选择器: booking_input_component_出生地
 证件号输入框: booking_input_component_证件号_self
 体重输入框: booking_input_component_体重（kg）_self
@@ -21,25 +21,41 @@ const initTestMap = `全局模块: global-testID
 Email输入框: booking_input_component_Email_self
 签发地选择器: booking_input_component_签发地
 出行人编辑浮层: ta-passenger-出行人-edit-poplayer-wrapper
-签证选择器: booking_input_component_签证
+选择出行人浮层: ta-passenger-出行人-list-poplayer-wrapper
 出行人模块: ta-passenger
 男icon: crn_font_booking_iconType_boy
-出生地选择框: booking_input_component_出生地
-新增出行人浮层: ta-passenger-出行人-edit-poplayer-wrapper
+女icon: crn_font_booking_iconType_girl
+编辑按钮01: traveler_item_edit_0
+编辑按钮02: traveler_item_edit_1
+编辑按钮03: traveler_item_edit_2
 出生地浮层: select-poplayer-出生地（省份）
 签发地浮层: select-poplayer-签发地（省份）
 国家/地区浮层: select-poplayer-选择国家
 港澳签注类型浮层: ta-select-poplayer
-国家/地区选择器: booking_input_component_国家/地区_self
 港澳签注类型选择器: booking_input_component_签证
-选择出行人浮层: ta-passenger-出行人-list-poplayer-wrapper
 外露出行人回显编辑按钮01: show_list_edit_icon_0
-编辑按钮01: traveler_item_edit_0
+中英文切换按钮: ta-switch-language
+拍照识别按钮: ta-ocr
+常旅列表页关闭按钮: ta-passenger-list-poplayer-close
+外露出行人删除按钮: traveler_single_delete_游客_0
+出行人选择01按钮: ta-passenger-select_01
+去支付: ta-footer-next-btn
+邀请好友填写: ta-invite-btn
+邀请好友填写分享按钮: ta-invite-share-btn
+通讯录按钮: ta-address-book
+联系手机清除按钮: contact_mobile_clear_btn
+邮箱清除按钮: contact_email_clear_btn
+证件号重复半浮层模块: ta-repeat-cardnum-poplayer
+证件号重复半浮层模块编辑按钮01: ta-repeat-cardnum_0
+证件号重复半浮层模块编辑按钮02: ta-repeat-cardnum_1
+常旅列表页保存按钮: ta-passenger-list-save
+新增出行人浮层: ta-passenger-出行人-edit-poplayer-wrapper
+返回按钮: ta-passenger-edit-poplayer-back
+姓名填写说明按钮01: crn_font_booking_iconType_help
 证件类型浮层: ta-cardtype-poplayer
 证件切换按钮: ta-cardtype
-女icon: crn_font_booking_iconType_girl 
-风险公告模块: ta-notice-tips
-风险公告浮层: risk_pop_default
+风险公告模块: ta-notice-tips 
+风险公告浮层: risk_pop_default 
 `
 
 // 监听插件是否安装
@@ -185,13 +201,17 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
 
     // 剪贴板拷贝2
     case 'copyToClipboard2':
-      steps = result.map(res => {
+      result.map(res => {
         let desc = preprocess(res['步骤描述'] || "");
-        desc = desc ? desc + "." : "";
         let expect = preprocess(res['预期结果'] || "");
-        expect = expect ? expect + "." : "";
-        return `${res['步骤编号']}. ${desc} ${expect}\n`;
+        if(desc){
+          steps.push(`${res['步骤编号']}-1. ${desc}`)
+        }
+        if(expect){
+          steps.push(`${res['步骤编号']}-2. ${expect}.`)
+        }
       })
+      console.log("wjs: steps",steps);
       const testIDObj = convertToObj(testIDStr);
       const { result: _steps, notFoundTestID } = replacePlaceholders(steps.join("&&||"), testIDObj);
       const obj = {

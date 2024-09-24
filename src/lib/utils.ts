@@ -46,7 +46,7 @@ export function replacePlaceholders(str, obj) {
 export function findAllMatches(str) {
   // 定义一个包含多个正则表达式的数组
   // 匹配序号
-  const indexReg = /[\d]+\./g;
+  const indexReg = /[\d\-]+\./g;
   // 匹配括号正则
   const bracketReg = /\[([^\]]*?)\]/g;
   // 匹配中文双引号
@@ -59,7 +59,7 @@ export function findAllMatches(str) {
   const QuotesReg = /\(([^)]*?)\)/g;
 
   // 匹配 {@color: xxx}
-  const specialReg = /\{\@(\w+): [^}]*\}/g;
+  const specialReg = /\{\@(\w+):\s*[^}]*\}/g;
 
   // 匹配特殊中文
   const chineseWordReg = [
@@ -133,7 +133,11 @@ export function findAllMatches(str) {
 }
 
 function replaceStr(str) {
-  // 暗纹展示 "xxx" → "{@placeholder: xxx}"
+  // 暗纹展示 "请选择" → 展示 "请选择"
+  str = str.replace(/暗文展示\s*"请选择/g, (match, p1) => {
+    return `展示 "请选择`
+  })
+  // 暗文展示 "xxx" → "{@placeholder: xxx}"
   str = str.replace(/暗文展示\s*"([^"]*?)"/g, (match, p1) => {
     return `{@placeholder: ${p1}}`
   })
