@@ -1,9 +1,6 @@
 import { convertToObj, findAllMatches, replacePlaceholders } from "@/lib/utils";
 import { preprocess } from "./preprocess";
-
 console.log("🔥 Hello from background (src/background/index.ts)");
-
-// const welcomeURL = chrome.runtime.getURL("src/pages/welcome/index.html");
 
 const TESTID_MAP = "TESTID_MAP";
 const MOCKENV_MAP = "MOCKENV_MAP";
@@ -148,8 +145,9 @@ let titleStr = "";
 let _tabInfo = {} as any;
 // testID 字符串
 let testIDStr = "";
+let urlStr = "";
 
-function updateTitle() {
+function updateInfo(url) {
   getCurrentTab().then((tabInfo) => {
     _tabInfo = tabInfo;
     const _titleStr = `{${tabInfo?.caseId}}` + "-" + tabInfo?.title;
@@ -161,7 +159,14 @@ ${_titleStr}
   })
   getTestIDMapConfig().then((res) => {
     testIDStr = res["xtaro-ticket"];
-  })
+  });
+
+  // 更新 URL（后续调整所有的结构）
+  urlStr = `
+\\\`\\\`\\\`url
+${url}
+\\\`\\\`\\\`
+`
 }
 
 let result: any[] = [];
@@ -171,7 +176,6 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
   const { type, command, data } = message;
 
   let steps = []
-
 
   switch (type || command) {
     case 'down':
@@ -183,9 +187,9 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
     case 'copyToClipboard2':
       steps = result.map(res => {
         let desc = preprocess(res['步骤描述'] || "");
-        desc = desc ? desc + ".": "";
-        let  expect = preprocess(res['预期结果'] || "");
-        expect = expect ? expect + ".": "";
+        desc = desc ? desc + "." : "";
+        let expect = preprocess(res['预期结果'] || "");
+        expect = expect ? expect + "." : "";
         return `${res['步骤编号']}. ${desc} ${expect}\n`;
       })
       const testIDObj = convertToObj(testIDStr);
@@ -212,10 +216,10 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       const contentStr = steps.join("");
       const testIDObj2 = convertToObj(testIDStr);
       const { notFoundTestID: notFoundTestID2 } = replacePlaceholders(contentStr, testIDObj2);
-      sendResponse({ copyText: `${titleStr}\n${contentStr}`, notFoundTestID: notFoundTestID2 });
+      sendResponse({ copyText: `${titleStr}\n${urlStr}\n${contentStr}`, notFoundTestID: notFoundTestID2 });
       break;
     case 'parseHtml':
-      updateTitle();
+      updateInfo(message?.url);
       result = data;
       break;
 

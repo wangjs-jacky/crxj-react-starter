@@ -10,58 +10,107 @@ const imgReg =
 // 输入转换正则
 const inputReg = /输入\s*([^,框栏]+)/g;
 
-const processBracketsText = (str: string) => {
-  // 正则表达式匹配被双引号包围的子串
-  const quotedMatches = [];
-  const unquotedMatches = [];
-  let match;
-  // 使用正则表达式的exec方法循环匹配所有结果
-  while ((match = quotedRegex.exec(str)) !== null) {
-    // 将匹配的字符串添加到结果数组中
-    quotedMatches.push({
-      text: match[0],
-      index: match.index,
-    });
-  }
-
-  // 处理未被双引号包裹的文本
-  let index = 0;
-  for (const match of quotedMatches) {
-    const { index: startIndex, text } = match;
-    const endIndex = startIndex + text.length;
-    if (startIndex > index) {
-      unquotedMatches.push({
-        text: str.substring(index, startIndex),
-        index,
-      });
-    }
-    index = endIndex;
-  }
-  // 处理最后一个双引号后的文本
-  if (index < str.length) {
-    unquotedMatches.push({
-      text: str.substring(index),
-      index,
-    });
-  }
-
-  // 根据不被双引号包裹的文本，删除其中的括号包裹的内容
-  let tempStr = str;
-  for (const match of unquotedMatches) {
-    const { text } = match;
-    // 匹配括号包裹的文本
-    const bracketMatches = text.match(bracketReg) || [];
-    const chineseMatches = text.match(chineseBracketReg) || [];
-    // 替换括号包裹的文本为空
-    for (const bracketMatch of bracketMatches) {
-      tempStr = tempStr.replace(bracketMatch, "");
-    }
-    for (const bracketMatch of chineseMatches) {
-      tempStr = tempStr.replace(bracketMatch, "");
-    }
-  }
-  return tempStr;
+type MatchType = {
+  text: string;
+  startIndex: number;
+  endIndex: number;
+  length: number;
+  regrex: RegExp[];
+  name: string;
+  replace?: Function;
 };
+
+// 创建一个函数来查找所有匹配项的索引
+function processBracketsText(str) {
+  // 正则：
+  const RegConfig = [
+    {
+      // 匹配括号正则
+      name: "bracketReg",
+      reg: /\[([^\]]*?)\]/g
+    },
+    {
+      // 匹配中文双引号
+      name: "chineseDoubleQuotesReg",
+      reg: /“([^”]*?)”/g
+    },
+    {
+      // 匹配英文双引号
+      name: "englishDoubleQuotesReg",
+      reg: /"([^"]*?)"/g
+    },
+    {
+      // 匹配单引号
+      name: "singleQuotesReg",
+      reg: /'([^']*?)'/g
+    },
+    {
+      // 匹配括号
+      name: "QuotesReg",
+      reg: [
+        /\(([^)]*?)\)/g,
+        /\（([^）]*?)\）/g,
+      ],
+    }
+  ];
+
+  let allIndices = [] as MatchType[];
+  RegConfig.forEach((item) => {
+    let { reg, name } = item;
+    if (!Array.isArray(reg)) {
+      reg = [reg];
+    }
+    reg.forEach((item) => {
+      let match;
+      while ((match = item.exec(str)) !== null) {
+        allIndices.push({
+          text: match[0],
+          startIndex: match.index,
+          endIndex: match.index + match[0].length,
+          length: match[0].length,
+          regrex: reg,
+          name
+        });
+      }
+    });
+  });
+
+  function mergeIntervals(intervals: MatchType[]) {
+    // 首先按照区间的起始位置对区间进行排序
+    intervals.sort((a, b) => a.startIndex - b.startIndex);
+    const merged = [] as MatchType[];
+    for (const interval of intervals) {
+      // 如果合并后的数组为空，或者当前区间与合并后数组中最后一个区间不重叠，则直接添加
+      if (merged.length === 0 || merged[merged.length - 1].endIndex <= interval.startIndex) {
+        merged.push(interval);
+      } else {
+        // 否则有重叠，合并区间
+        merged[merged.length - 1].endIndex = Math.max(merged[merged.length - 1].endIndex, interval.endIndex);
+      }
+    }
+    return merged;
+  }
+
+  function clearStringRange(str, ranges) {
+    // 将字符串转换成数组，便于操作
+    let chars = str.split('');
+
+    // 遍历所有的索引范围
+    ranges.forEach(range => {
+      // 清空指定的索引范围
+      for (let i = range.startIndex; i < range.endIndex && i < chars.length; i++) {
+        chars[i] = '';
+      }
+    });
+
+    // 将数组重新组合成字符串
+    return chars.join('');
+  }
+  const sortedRanges = mergeIntervals(allIndices);
+  const ranges = (sortedRanges || []).filter((item) => item.name === "QuotesReg");
+  str = clearStringRange(str, ranges);
+  return str;
+}
 
 export const preprocess = (str: string) => {
   let tempStr = str;

@@ -19,6 +19,7 @@ document.addEventListener('mouseover', () => {
 function parseTableElement() {
   const tableRows = document.querySelectorAll('tbody tr');
   const result: { 步骤编号: string | null; 步骤描述: any; 预期结果: any; }[] = [];
+  const url = document.querySelector("div.ant-row.precondition p a")?.href;
   tableRows.forEach(row => {
     const stepNumber = row.querySelector('td:nth-child(1) span').textContent;
     // @ts-ignore
@@ -31,7 +32,7 @@ function parseTableElement() {
       '预期结果': expectedResults.replaceAll("“", "\"").replaceAll("”", "\""),
     });
   });
-  chrome.runtime.sendMessage({ type: 'parseHtml', data: result });
+  chrome.runtime.sendMessage({ type: 'parseHtml', data: result, url: url });
 }
 
 function addElement() {
