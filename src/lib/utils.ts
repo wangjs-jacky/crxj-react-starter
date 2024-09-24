@@ -5,7 +5,6 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-
 export function convertToObj(testIDStr) {
   const lines = testIDStr.trim().split('\n');
   const obj = {};
@@ -135,7 +134,6 @@ export function findAllMatches(str) {
 }
 
 function replaceStr(str) {
-
   // 图片转换正则
   const imgReg =
     /图片\s*((?:https?:\/\/|\.\/|\/|www\.)[\w\-\.]+\.(gif|png|jpg|jpeg|webp|svg|bmp|tif)(?:,(?:https?:\/\/|\.\/|\/|www\.)[\w\-\.]+\.(gif|png|jpg|jpeg|webp|svg|bmp|tif))*)/gi;

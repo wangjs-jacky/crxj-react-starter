@@ -5,8 +5,8 @@ import { description, version } from "./package.json";
 export default defineManifest(async (env) => ({
   name:
     env.mode === "stagging"
-      ? "[INTERNAL] CRXJS React Starter"
-      : "CRXJS React Starter",
+      ? "[INTERNAL] HTA Text Extractor"
+      : "HTA Text Extractor",
   manifest_version: 3,
   // 将 package.json 的部分文还能给嫁接过来
   version,

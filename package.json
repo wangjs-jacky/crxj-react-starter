@@ -1,8 +1,8 @@
 {
   "name": "crxjs-react-starter",
   "private": true,
-  "version": "0.0.0",
-  "description": "CRXJS React Chrome extension starter + TypeScript + TailwindCSS",
+  "version": "0.0.1",
+  "description": "HTA 文本提取器",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
