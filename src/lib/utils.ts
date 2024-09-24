@@ -135,6 +135,13 @@ export function findAllMatches(str) {
 }
 
 function replaceStr(str) {
+
+  // 图片转换正则
+  const imgReg =
+    /图片\s*((?:https?:\/\/|\.\/|\/|www\.)[\w\-\.]+\.(gif|png|jpg|jpeg|webp|svg|bmp|tif)(?:,(?:https?:\/\/|\.\/|\/|www\.)[\w\-\.]+\.(gif|png|jpg|jpeg|webp|svg|bmp|tif))*)/gi;
+
+  const inputReg = /输入\s*([^,框栏]+)/g;
+
   // 暗纹展示 "请选择" → 展示 "请选择"
   str = str.replace(/暗文展示\s*"请选择/g, (match, p1) => {
     return `展示 "请选择`
@@ -148,5 +155,12 @@ function replaceStr(str) {
   str = str.replace(/(\[([^\]]*?)\])\s*浮层关闭/g, (match, p1) => {
     return `${p1} {@visible: false}`
   })
+
+  // 图片转换
+  str = str.replace(imgReg, "图片{@img: $1}");
+  // 输入转换
+  str = str.replace(inputReg, (_, group) => {
+    return `输入{@input: ${group.trim()}}`;
+  });
   return str;
 }

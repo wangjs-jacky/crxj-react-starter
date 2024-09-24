@@ -116,12 +116,6 @@ export const preprocess = (str: string) => {
   let tempStr = str;
   // 处理不被双引号包裹的括号
   tempStr = processBracketsText(tempStr);
-  // 图片转换
-  tempStr = tempStr.replace(imgReg, "图片{@img: $1}");
-  // 输入转换
-  tempStr = tempStr.replace(inputReg, (_, group) => {
-    return `输入{@input: ${group.trim()}}`;
-  });
   return tempStr;
 };
 
