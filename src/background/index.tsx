@@ -56,6 +56,7 @@ Email输入框: booking_input_component_Email_self
 证件切换按钮: ta-cardtype
 风险公告模块: ta-notice-tips 
 风险公告浮层: risk_pop_default 
+出生地选择框: booking_input_component_出生地
 `
 
 // 监听插件是否安装
