@@ -144,7 +144,7 @@ function replaceStr(str) {
 
   // 浮层关闭
   str = str.replace(/(\[([^\]]*?)\])\s*浮层关闭/g, (match, p1) => {
-    return `不存在 ${p1}`
+    return `${p1} {@visible: false}`
   })
   return str;
 }
