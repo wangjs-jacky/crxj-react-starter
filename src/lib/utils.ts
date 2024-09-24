@@ -65,6 +65,8 @@ export function findAllMatches(str) {
   const chineseWordReg = [
     /点击/g,
     /展示/g,
+    /不存在/g,
+    /不展示/g,
     /,/g,
     /，/g,
     /浮层关闭/g,
