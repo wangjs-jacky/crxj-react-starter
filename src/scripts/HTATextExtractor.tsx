@@ -1,6 +1,4 @@
 import { Button, notification, Space } from "antd";
-// const qconfig = require("@ctrip/node-vampire-qconfig");
-// import qconfig from "@ctrip/node-vampire-qconfig"
 import axios from "@/lib/axios";
 
 const parseData = (data) => {
@@ -14,23 +12,8 @@ const parseData = (data) => {
   return data
 }
 
-// configFileName，文件名，格式为：appID：fileName，当传入的文件名不包含 appID 时，默认为当前 appID 下文件
-const getConfig = async (configFileName, qconfigData = {}) => {
-  let config = qconfig.getConfig(configFileName);
-  let content = await config.get();
-  console.log("wjs: content", content);
-  content = parseData(content);
-
-  config.on("change", data => {
-    let t = data ? parseData(data.configData) : {};
-    Object.assign(qconfigData, t);
-  });
-  return Object.assign(qconfigData, content);
-};
-
 export const HTATextExtractor = () => {
   const [api, contextHolder] = notification.useNotification();
-
   return (
     <>
       {contextHolder}
@@ -60,18 +43,3 @@ export const HTATextExtractor = () => {
     </>
   );
 };
-
-
-/*
-async () => {
-          // //处理中间件初始化业务
-          // let qconfigData = {};
-          // let businessKey = `100029097:ttd-smart-business.properties`;
-          // await getConfig(businessKey, qconfigData);
-          // // let config = qconfig.getConfig(configFileName);
-
-          const response = await axios.post("/soa2/12446/QConfig.json", { "head": { "cid": "09034161417416248124", "ctok": "", "cver": "1.0", "lang": "01", "sid": "8888", "syscode": "09", "auth": "", "extension": [] }, "KeyList": ["comment_tooltips"] });
-          return response.data;
-        }
-
-*/ 
