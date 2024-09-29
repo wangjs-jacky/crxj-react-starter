@@ -8,13 +8,13 @@
     "build": "vite build",
     "release": "npm run build && npm-build-zip --source dist --name release --name_only true",
     "test:unit": "vitest run",
-    "test:force": "vitest run -u"
+    "test:force": "vitest run -u",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.21.1",
     "@ctrip/node-vampire-cat-v14": "^1.0.1",
     "@ctrip/node-vampire-qconfig": "^1.0.50",
-
     "antd": "^5.21.1",
     "autoprefixer": "^10.4.19",
     "axios": "^1.7.7",
@@ -41,6 +41,8 @@
     "npm-build-zip": "^1.0.4",
     "typescript": "^4.6.3",
     "vite": "^2.9.9",
-    "vitest": "^1.0.2"
+    "vitest": "^1.0.2",
+    "chalk": "^4.1.2",
+    "husky": "^8.0.3"
   }
 }
