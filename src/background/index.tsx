@@ -1,6 +1,9 @@
 import { convertToObj, findAllMatches, replacePlaceholders } from "@/lib/utils";
 import { preprocess } from "./preprocess";
+import axios from "@/lib/axios";
 console.log("🔥 Hello from background (src/background/index.ts)");
+
+const KEY = "trip_ottd_online_redirect_config";
 
 const TESTID_MAP = "TESTID_MAP";
 const MOCKENV_MAP = "MOCKENV_MAP";
@@ -205,14 +208,14 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       result.map(res => {
         let desc = preprocess(res['步骤描述'] || "");
         let expect = preprocess(res['预期结果'] || "");
-        if(desc){
+        if (desc) {
           steps.push(`${res['步骤编号']}-1. ${desc}`)
         }
-        if(expect){
+        if (expect) {
           steps.push(`${res['步骤编号']}-2. ${expect}.`)
         }
       })
-      console.log("wjs: steps",steps);
+      console.log("wjs: steps", steps);
       const testIDObj = convertToObj(testIDStr);
       const { result: _steps, notFoundTestID } = replacePlaceholders(steps.join("&&||"), testIDObj);
       const obj = {
@@ -258,11 +261,6 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
         console.log("wjs: config value", result[caseId]);
       });
       break;
-
-    case 'open-new-tab':
-      chrome.tabs.create({ url: 'http://localhost:3000' });
-      break;
-
     case 'save_testID_map':
       const { key: testIDKey, value: testIDValue } = data || {};
       await saveTestIDMapConfig(testIDKey, testIDValue);
@@ -285,29 +283,14 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       await chrome.tabs.sendMessage(sender?.tab?.id!, { type: 'get_mockEnv_map', data: mockEnvConfig });
       break;
 
+    case "request":
+      const response = await axios.get("/restapi/ttd/bff/qconfig");
+      console.log("wjs: request", response.data?.Response[KEY]["/things-to-do/detail/"]);
+      
+      break;
     default:
       console.log('未知的消息类型:', type || command);
   }
 });
-
-// // 监听右键菜单点击事件
-// chrome.contextMenus.onClicked.addListener(() => { });
-
-// // 添加右键菜单
-// // chrome.contextMenus.create({
-// //   type: 'normal',
-// //   title: '批量导出',
-// //   contexts: ['all'],
-// //   id: 'menu-1'
-// // });
-
-// // 下载函数
-// function download(url: string) {
-//   var options = {
-//     url: url
-//   }
-//   // 下载 ？是否存在 ts 类型
-//   chrome.downloads.download(options)
-// }
 
 export { };

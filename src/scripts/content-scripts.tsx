@@ -1,20 +1,12 @@
 import ReactDOM from "react-dom/client";
-import { MyComponent } from "./App";
-import "./index.css"
-
-// 此代码将被注入到目标页面结构中，因此具备共享 DOM 结构能力
-console.log("🔥 Hello from content script (src/scripts/content-scripts.ts)");
-
-// 监听 document
+import { HTATextExtractor } from "./HTATextExtractor";
+import { StyleProvider } from '@ant-design/cssinjs';
 
 // 监听鼠标移动事件
 document.addEventListener('mouseover', () => {
   addElement();
   parseTableElement();
 }, true);
-// document.addEventListener('DOMContentLoaded', () => {
-//   addElement();
-// })
 
 function parseTableElement() {
   const tableRows = document.querySelectorAll('tbody tr');
@@ -36,22 +28,23 @@ function parseTableElement() {
 }
 
 function addElement() {
-  if (!document.querySelector('#myButton')) {
-    // 创建一个新的按钮元素
-    const button = document.createElement('div');
-    button.id = 'myButton';  // 设置按钮的 ID，以便可以通过 ID 选择
-
+  if (!document.querySelector('#hta-container')) {
     // 选择要插入按钮的位置，比如一个特定的 div
-    const container = document.querySelector('h4.ant-typography')
+    const insertPosition = document.querySelector('h4.ant-typography')
 
-    // const container = document.querySelector('.nav-banner')
+    if (insertPosition) {
+      const button = document.createElement('div');
+      button.id = 'hta-container';
+      const shadowRoot = button.attachShadow({ mode: 'open' });
+      insertPosition.insertAdjacentElement('afterend', button);
 
-    // 将按钮添加到选定的位置
-    // container.appendChild(button); 
-    if (container) {
-      container.insertAdjacentElement('afterend', button);
-      ReactDOM.createRoot(document.getElementById("myButton")!).render(
-        <MyComponent />
+      // 在 shaodow Root 下创建一个 div 节点，使用 ReactDOM 对这个节点进行渲染处理
+      const container = document.createElement('div');
+      shadowRoot.appendChild(container);
+      ReactDOM.createRoot(container!).render(
+        <StyleProvider container={shadowRoot}>
+          <HTATextExtractor />
+        </StyleProvider>
       );
     }
   }

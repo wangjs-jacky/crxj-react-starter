@@ -32,19 +32,11 @@ export default defineManifest(async (env) => ({
       run_at: "document_end"
     },
   ],
-  // // 新增 Chrome Tab 栏
-  // chrome_url_overrides: {
-  //   newtab: "src/pages/new-tab/index.html",
-  // },
   icons: {
     "16": "src/assets/icons/16x16.png",
     "32": "src/assets/icons/32x32.png",
     "48": "src/assets/icons/32x32.png",
     "128": "src/assets/icons/128x128.png",
-  },
-  "options_ui": {
-    "page": "src/pages/options/index.html",
-    "open_in_tab": true
   },
   permissions: [
     "downloads",
