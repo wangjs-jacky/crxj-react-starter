@@ -13,8 +13,7 @@
   },
   "dependencies": {
     "@ant-design/cssinjs": "^1.21.1",
-    "@ctrip/node-vampire-cat-v14": "^1.0.1",
-    "@ctrip/node-vampire-qconfig": "^1.0.50",
+    "@ant-design/icons": "^5.5.1",
     "@floating-ui/react": "^0.26.24",
     "antd": "^5.21.1",
     "autoprefixer": "^10.4.19",

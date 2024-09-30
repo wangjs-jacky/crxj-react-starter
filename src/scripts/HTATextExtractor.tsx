@@ -1,9 +1,9 @@
-import { Button, Modal, notification, Select, Space } from "antd";
+import { Button, ConfigProvider, notification, Space } from "antd";
 import axios from "@/lib/axios";
-import { useEffect, useRef, useState } from "react";
-import Draggable from "react-draggable";
+import { useSelectModal } from "./SelectModal";
+import { useEffect, useState } from "react";
 
-let obj = {
+const MockObject = {
   "全局模块": "global-testID",
   "中文姓名输入框": "booking_input_component_中文姓名_self",
   "联系电话输入框": "booking_input_component_联系电话_self",
@@ -58,166 +58,59 @@ let obj = {
   "出生地选择框": "booking_input_component_出生地"
 };
 
-const selectOptions = Object.keys(obj).map((item) => {
-  return {
-    value: item,
-    label: `${item}-${obj[item]}`
-  }
-})
-
-
-const parseData = (data) => {
-  if (Object.prototype.toString.call(data) === '[object Object]') {
-    Object.keys(data).forEach(k => {
-      try {
-        data[k] = JSON.parse(data[k]);
-      } catch (e) { }
-    })
-  }
-  return data
-}
-
 export const HTATextExtractor = () => {
   const [api, contextHolder] = notification.useNotification();
-  const [open, setOpen] = useState(false);
-  const [disabled, setDisabled] = useState(true);
-  const [bounds, setBounds] = useState({ left: 0, top: 0, bottom: 0, right: 0 });
-  const draggleRef = useRef<HTMLDivElement>(null);
-  const [index, setIndex] = useState(-1);
-
-  const showModal = () => {
-    setOpen(true);
-  };
-
-  const handleOk = (e: React.MouseEvent<HTMLElement>) => {
-    console.log(e);
-    setOpen(false);
-  };
-
-  const handleCancel = (e: React.MouseEvent<HTMLElement>) => {
-    console.log(e);
-    setOpen(false);
-  };
-
-  const onStart = (_event: DraggableEvent, uiData: DraggableData) => {
-    const { clientWidth, clientHeight } = window.document.documentElement;
-    const targetRect = draggleRef.current?.getBoundingClientRect();
-    if (!targetRect) {
-      return;
-    }
-    setBounds({
-      left: -targetRect.left + uiData.x,
-      right: clientWidth - (targetRect.right - uiData.x),
-      top: -targetRect.top + uiData.y,
-      bottom: clientHeight - (targetRect.bottom - uiData.y),
-    });
-  };
+  const [testIDMap, setTestIDMap] = useState({});
+  const [selectOptions, setSelectOptions] = useState([]);
+  const [modalApi, modalContextHolder] = useSelectModal({ selectOptions, testIDMap });
 
   useEffect(() => {
-    const container = Array.from(document.querySelectorAll('td:nth-child(2) > div > textarea'));
-    container.forEach((item, index) => {
-      item.addEventListener('input', function (event) {
-        if (event.target instanceof HTMLTextAreaElement) {
-          setIndex(container.indexOf(event.target))
-        }
-        // 检查按下的键是否为 '[' 键
-        if (event.data === '[') {
-          event.preventDefault();
-          showModal();
-        }
-      });
-    })
+    const obj = Object.keys(testIDMap).map((item) => {
+      return {
+        value: item,
+        label: `${item}-${testIDMap[item]}`
+      }
+    });
+    setSelectOptions(obj);
+  }, [testIDMap])
 
-
-  }, []);
+  useEffect(() => {
+    const main = async () => {
+      // 获取数据
+      const response = await axios.get("/restapi/ttd/bff/qconfig");
+      if (response) {
+        setTestIDMap(MockObject);
+        chrome.runtime.sendMessage({ command: "qconfig", data: MockObject })
+      }
+    }
+    main();
+  }, [])
 
   return (
-    <>
+    <ConfigProvider>
       {contextHolder}
+      {/* 弹窗环境 */}
+      {modalContextHolder}
       <Space>
         <Button type="primary" onClick={() => {
           chrome.runtime.sendMessage({ command: "copyToClipboard" }, (response) => {
             if (response) {
               const { notFoundTestID } = response || {};
-              api.info({
-                message: `剪贴板已保存`,
-                description: notFoundTestID ? `未找到以下占位符，请补全:${notFoundTestID}` : "已保存到剪贴板",
-                placement: "topRight",
-                duration: 10
+              navigator.clipboard.writeText(response.copyText).then(() => {
+                api[notFoundTestID ? "warning" : "success"]({
+                  message: `测试文本已保存至剪贴板`,
+                  description: notFoundTestID ? `🚨 在 Qconfig 平台未能找到如下占位符，请补全: ${notFoundTestID}` : "testID 已替换成功，尝试 Ctrl + V 黏贴",
+                  placement: "bottomRight",
+                  duration: 5
+                })
               })
             }
           });
-        }}>生成 test 代码</Button>
-        <Button type="primary" onClick={async () => {
-          // chrome.runtime.sendMessage({ command: "request" }, (response) => {
-          //   console.log("wjs: response", response);
-          // })
-
-          const response = await axios.get("/restapi/ttd/bff/qconfig");
-          console.log("wjs: request", response.data?.Response);
-        }}>检测 testID</Button>
-
-
+        }}>提取 BDD 测试文本</Button>
         <Button type="primary" onClick={() => {
-          showModal();
-        }}>打开一个弹窗</Button>
+          chrome.runtime.sendMessage({ command: "checkTestID" })
+        }}>检测 testID</Button>
       </Space>
-
-      <Modal
-        mask={false}
-        centered
-        title={
-          <div
-            style={{ width: '100%', cursor: 'move' }}
-            onMouseOver={() => {
-              if (disabled) {
-                setDisabled(false);
-              }
-            }}
-            onMouseOut={() => {
-              setDisabled(true);
-            }}
-            // fix eslintjsx-a11y/mouse-events-have-key-events
-            // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/master/docs/rules/mouse-events-have-key-events.md
-            onFocus={() => { }}
-            onBlur={() => { }}
-          // end
-          >
-            Draggable Modal
-          </div>
-        }
-        open={open}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        modalRender={(modal) => (
-          <Draggable
-            disabled={disabled}
-            bounds={bounds}
-            nodeRef={draggleRef}
-            onStart={(event, uiData) => onStart(event, uiData)}
-          >
-            <div ref={draggleRef}>{modal}</div>
-          </Draggable>
-        )}
-      >
-        <Select
-          showSearch
-          style={{ width: '100%' }}
-          placeholder="搜索选择 testID"
-          optionFilterProp="label"
-          options={selectOptions}
-          onSelect={(value) => {
-            const event = new Event('input', {
-              bubbles: true,
-              cancelable: true,
-            });
-            const textarea = document.querySelectorAll(`td:nth-child(2) > div > textarea`)!;
-            textarea[index].value += value + "]";
-            textarea[index].dispatchEvent(event); // 触发输入事件
-            handleCancel();
-          }}
-        />
-      </Modal>
-    </>
+    </ConfigProvider>
   );
 };

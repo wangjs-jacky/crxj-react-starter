@@ -54,6 +54,7 @@ function processBracketsText(str) {
     }
   ];
 
+  // 根据正则规则，记录所有匹配到的文本
   let allIndices = [] as MatchType[];
   RegConfig.forEach((item) => {
     let { reg, name } = item;
@@ -106,8 +107,12 @@ function processBracketsText(str) {
     // 将数组重新组合成字符串
     return chars.join('');
   }
+
+  // 合并数组，举例 [4,5],[1,9] → [1,9]
   const sortedRanges = mergeIntervals(allIndices);
+  // 删除引号
   const ranges = (sortedRanges || []).filter((item) => item.name === "QuotesReg");
+  // 合并后，若仍存在 QuoteReg 规则，对此部分进行删除操作
   str = clearStringRange(str, ranges);
   return str;
 }

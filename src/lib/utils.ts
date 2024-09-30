@@ -20,7 +20,7 @@ export function convertToObj(testIDStr) {
   return obj;
 }
 
-export function replacePlaceholders(str, obj) {
+export function replaceTestID(str, obj) {
   const notFoundTestID = new Set();
   const result = str.replace(/\[(.*?)\]/g, (match, p1) => {
     if (obj[p1] !== undefined) {

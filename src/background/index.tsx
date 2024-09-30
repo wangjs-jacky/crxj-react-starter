@@ -1,4 +1,4 @@
-import { convertToObj, findAllMatches, replacePlaceholders } from "@/lib/utils";
+import { convertToObj, findAllMatches, replaceTestID } from "@/lib/utils";
 import { preprocess } from "./preprocess";
 import axios from "@/lib/axios";
 console.log("🔥 Hello from background (src/background/index.ts)");
@@ -104,9 +104,6 @@ chrome.runtime.onInstalled.addListener((details) => {
   })
 });
 
-// // 监听插件是否被点击
-// chrome.action.onClicked.addListener(() => { })
-
 const downloadContent = (filename: string, content: any[]) => {
   try {
     const dataUrl = `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(content))}`;
@@ -167,6 +164,10 @@ let _tabInfo = {} as any;
 let testIDStr = "";
 let urlStr = "";
 
+
+let testIDMap = {};
+
+
 function updateInfo(url) {
   getCurrentTab().then((tabInfo) => {
     _tabInfo = tabInfo;
@@ -203,44 +204,27 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       downloadContent(`case_${tab.caseId}.tsx`, result);
       break;
 
-    // 剪贴板拷贝2
-    case 'copyToClipboard2':
-      result.map(res => {
-        let desc = preprocess(res['步骤描述'] || "");
-        let expect = preprocess(res['预期结果'] || "");
-        if (desc) {
-          steps.push(`${res['步骤编号']}-1. ${desc}`)
-        }
-        if (expect) {
-          steps.push(`${res['步骤编号']}-2. ${expect}.`)
-        }
-      })
-      console.log("wjs: steps", steps);
-      const testIDObj = convertToObj(testIDStr);
-      const { result: _steps, notFoundTestID } = replacePlaceholders(steps.join("&&||"), testIDObj);
-      const obj = {
-        id: _tabInfo?.caseId,
-        title: `标题: {${_tabInfo?.caseId}}` + "-" + _tabInfo?.title,
-        steps: _steps.replaceAll("“", "\"").replaceAll("”", "\"").replaceAll("'", "\"").replaceAll("♀", ",").split("&&||").map(i => {
-          return findAllMatches(i)
-        }),
-        testID: testIDStr
-      }
-      sendResponse({ copyText: JSON.stringify(obj, null, 2), notFoundTestID });
-      break;
-
-    // 剪贴板功能1
+    // 解析页面元素
+    // 1. 句子通过 "♀" 分段。
+    // 2. 预处理，将除字符串外的部分 () 删掉。
+    // 3. 将文本中的 [], 进行替换，对于不存在的 testID 进行弹窗提示。
     case 'copyToClipboard':
+    case 'checkTestID':
       steps = result.map(res => {
         const isTag = "♀";
         const desc = preprocess(res['步骤描述'] || "");
         const expect = preprocess(res['预期结果'] || "");
         return `${res['步骤编号']}. ${desc} ${isTag} ${expect}\n`;
       })
+      // 合并字符串（方便 testID 依赖收集）
       const contentStr = steps.join("");
-      const testIDObj2 = convertToObj(testIDStr);
-      const { notFoundTestID: notFoundTestID2 } = replacePlaceholders(contentStr, testIDObj2);
-      sendResponse({ copyText: `${titleStr}\n${urlStr}\n${contentStr}`, notFoundTestID: notFoundTestID2 });
+      const { notFoundTestID } = replaceTestID(contentStr, testIDMap);
+      console.log("wjs: command", command);
+      if (command === "copyToClipboard") {
+        sendResponse({
+          copyText: `${titleStr}\n${urlStr}\n${contentStr}`, notFoundTestID
+        });
+      }
       break;
     case 'parseHtml':
       updateInfo(message?.url);
@@ -283,10 +267,8 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       await chrome.tabs.sendMessage(sender?.tab?.id!, { type: 'get_mockEnv_map', data: mockEnvConfig });
       break;
 
-    case "request":
-      const response = await axios.get("/restapi/ttd/bff/qconfig");
-      console.log("wjs: request", response.data?.Response[KEY]["/things-to-do/detail/"]);
-      
+    case "qconfig":
+      testIDMap = message.data || {}
       break;
     default:
       console.log('未知的消息类型:', type || command);
