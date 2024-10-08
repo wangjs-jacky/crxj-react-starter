@@ -11,9 +11,9 @@ export default defineManifest(async (env) => ({
   // 将 package.json 的部分文还能给嫁接过来
   version,
   description,
-  action: {
-    default_popup: "src/pages/popup/index.html",
-  },
+  // action: {
+  //   default_popup: "src/pages/popup/index.html",
+  // },
   // serviceWork 可以作为一个调和剂，充当消息转发中心
   background: {
     service_worker: "src/background/index.tsx",
