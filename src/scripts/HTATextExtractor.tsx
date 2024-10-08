@@ -2,6 +2,7 @@ import { Button, ConfigProvider, notification, Space } from "antd";
 import axios from "@/lib/axios";
 import { useSelectModal } from "./SelectModal";
 import { useEffect, useState } from "react";
+import { HTA_TESTID_MAP } from "@/constant";
 
 const MockObject = {
   "全局模块": "global-testID",
@@ -63,6 +64,7 @@ export const HTATextExtractor = () => {
   const [testIDMap, setTestIDMap] = useState({});
   const [selectOptions, setSelectOptions] = useState([]);
   const [modalApi, modalContextHolder] = useSelectModal({ selectOptions, testIDMap });
+  const [moduleId, setModuleId] = useState("");
 
   useEffect(() => {
     const obj = Object.keys(testIDMap).map((item) => {
@@ -75,16 +77,33 @@ export const HTATextExtractor = () => {
   }, [testIDMap])
 
   useEffect(() => {
+    // 在 background.js 中获取 url 信息
+    chrome.runtime.sendMessage({ type: 'getTabInfo' });
+
+    // 设置 moduleId 信息
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message.type === "getTabInfo") {
+        const { moduleId } = message.data || {};
+        setModuleId(moduleId);
+      }
+    });
+  }, [])
+
+  useEffect(() => {
     const main = async () => {
       // 获取数据
       const response = await axios.get("/restapi/ttd/bff/qconfig");
       if (response) {
+        const { data } = response;
+        const { Response } = data || {};
+        const _data = Response[HTA_TESTID_MAP];
+        console.log("wjs: request1", _data[moduleId]);
         setTestIDMap(MockObject);
         chrome.runtime.sendMessage({ command: "qconfig", data: MockObject })
       }
     }
     main();
-  }, [])
+  }, [moduleId])
 
   return (
     <ConfigProvider>
@@ -106,10 +125,11 @@ export const HTATextExtractor = () => {
               })
             }
           });
-        }}>提取 BDD 测试文本</Button>
-        <Button type="primary" onClick={() => {
-          chrome.runtime.sendMessage({ command: "checkTestID" })
-        }}>检测 testID</Button>
+        }}>生成 test 代码</Button>
+        {/* <Button type="primary" onClick={async () => {
+          const response = await axios.get("/restapi/ttd/bff/qconfig");
+          console.log("wjs: request1", response.data?.Response);
+        }}>检测 testID</Button> */}
       </Space>
     </ConfigProvider>
   );

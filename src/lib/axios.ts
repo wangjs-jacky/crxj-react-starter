@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const instance = axios.create({
-  baseURL: "https://www.trip.com/", // 动态配置基础 URL
+  baseURL: "https://www.fat1.qa.nt.tripqate.com/", // 动态配置基础 URL
   headers: {
     "Content-Type": "application/json",
     Accept: "*/*",

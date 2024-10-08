@@ -1,9 +1,11 @@
 import { EXPECT_CSS_SELECTOR, STEPS_CSS_SELECTOR } from "@/constant";
 import { CopyFilled } from "@ant-design/icons";
-import { Button, message, Modal, notification, Select, Space, Tooltip } from "antd";
+import { Button, Flex, message, Modal, notification, Select, Space, Tooltip } from "antd";
 import { useEffect, useRef, useState } from "react";
 import type { DraggableData, DraggableEvent } from "react-draggable";
 import Draggable from "react-draggable";
+import { Pin, PinOff } from 'lucide-react';
+import "./index.css"
 
 const useDraggableProps = (config?: any) => {
   const draggleRef = useRef<HTMLDivElement>(null);
@@ -58,7 +60,8 @@ const useDraggableProps = (config?: any) => {
   }
 
   const DragContainer = (props) => {
-    return <div style={{ cursor: 'move' }}
+    const { style } = props;
+    return <div style={{ cursor: 'move', backgroundColor: "red", ...style }}
       onMouseOver={() => {
         if (disabled) {
           setDisabled(true);
@@ -82,16 +85,39 @@ const useDraggableProps = (config?: any) => {
 
 
 export const useSelectModal = (config?: any) => {
+  // 是否置顶
+  const [isStickyTop, setIsStickyTop] = useState(false);
+
   const { closeModal, showModal, DragContainer, modalProps } = useDraggableProps();
   const [messageApi, contextHolder] = message.useMessage();
 
   const { selectOptions, testIDMap } = config || {};
-  console.log("wjs: selectOptions", selectOptions);
+  console.log("wjs: selectOptions", selectOptions, isStickyTop);
 
   const [stepIndex, setStepIndex] = useState(-1);
   const [expectIndex, setExpectIndex] = useState(-1);
+
   const handleCancel = () => {
-    closeModal();
+    if (!isStickyTop) {
+      closeModal();
+    }
+  }
+
+  const inputText = (text: string) => {
+    const event = new Event('input', {
+      bubbles: true,
+      cancelable: true,
+    });
+    const stepTextarea = document.querySelectorAll(STEPS_CSS_SELECTOR)!;
+    const expectTextarea = document.querySelectorAll(EXPECT_CSS_SELECTOR)!;
+    if (stepTextarea && stepIndex > -1) {
+      stepTextarea[stepIndex].value += text;
+      stepTextarea[stepIndex].dispatchEvent(event);
+    }
+    if (expectTextarea && expectIndex > -1) {
+      expectTextarea[expectIndex].value += text;
+      expectTextarea[expectIndex].dispatchEvent(event);
+    }
   }
 
   useEffect(() => {
@@ -108,7 +134,12 @@ export const useSelectModal = (config?: any) => {
         }
         // 检查按下的键是否为 '[' 键
         if (event.data === '[') {
-          event.preventDefault();
+          // 手工执行 backspace 的 input 事件
+          item.value = item.value.slice(0, -1);
+          item.dispatchEvent(new Event('input', {
+            bubbles: true,
+            cancelable: true,
+          }));
           showModal();
         }
       });
@@ -122,7 +153,12 @@ export const useSelectModal = (config?: any) => {
         }
         // 检查按下的键是否为 '[' 键
         if (event.data === '[') {
-          event.preventDefault();
+          // 手工执行 backspace 的 input 事件
+          item.value = item.value.slice(0, -1);
+          item.dispatchEvent(new Event('input', {
+            bubbles: true,
+            cancelable: true,
+          }));
           showModal();
         }
       });
@@ -137,16 +173,52 @@ export const useSelectModal = (config?: any) => {
   const ele = (
     <Modal
       {...modalProps}
+      wrapClassName={isStickyTop ? "no-mask" : ""}
+      maskClosable={!isStickyTop}
       title={
-        <DragContainer>
-          <Space>
+        <div style={{
+          width: "100%", display: "flex", justifyItems: "space-between", alignItems: "center"
+        }}>
+          <Tooltip title="置顶">
+            <div style={{
+              marginRight: "10px",
+              display: "flex",
+              cursor: "pointer"
+            }} onClick={() => {
+              setIsStickyTop(x => {
+                console.log("wjs: 当前的 stickyTop", x);
+                return !x;
+              });
+            }}>{isStickyTop ? <Pin size={20} strokeWidth={1} /> : <PinOff size={20} strokeWidth={1} />}</div>
+          </Tooltip>
+          <DragContainer style={{ flex: 1 }}>
             可拖拽区域
-          </Space>
-        </DragContainer>
+          </DragContainer>
+        </div>
       }
     >
       <Space direction="vertical" style={{ display: "flex" }}>
         <Space.Compact block style={{ marginBottom: "10px" }}>
+          <Button onClick={() => {
+            inputText("展示")
+            handleCancel();
+          }}>展示</Button>
+          <Button onClick={() => {
+            inputText("暗文展示")
+            handleCancel();
+          }}>暗文展示</Button>
+          <Button onClick={() => {
+            inputText("点击")
+            handleCancel();
+          }}>点击</Button>
+          <Button onClick={() => {
+            inputText("输入")
+            handleCancel();
+          }}>输入</Button>
+          <Button onClick={() => {
+            inputText("()")
+            handleCancel();
+          }}>注释</Button>
           <Tooltip title="拷贝 testID 对象">
             <Button icon={<CopyFilled />} onClick={() => {
               navigator.clipboard.writeText(JSON.stringify(testIDMap, null, 2))
@@ -162,26 +234,13 @@ export const useSelectModal = (config?: any) => {
         </Space.Compact>
         <Select
           showSearch
-          value={""}
+          value={"搜索选择 testID"}
           style={{ width: '100%' }}
-          placeholder="搜索选择 testID1"
+          placeholder="搜索选择 testID"
           optionFilterProp="label"
           options={selectOptions}
           onSelect={(value) => {
-            const event = new Event('input', {
-              bubbles: true,
-              cancelable: true,
-            });
-            const stepTextarea = document.querySelectorAll(STEPS_CSS_SELECTOR)!;
-            const expectTextarea = document.querySelectorAll(EXPECT_CSS_SELECTOR)!;
-            if (stepTextarea && stepIndex > -1) {
-              stepTextarea[stepIndex].value += value + "]";
-              stepTextarea[stepIndex].dispatchEvent(event);
-            }
-            if (expectTextarea && expectIndex > -1) {
-              expectTextarea[expectIndex].value += value + "]";
-              expectTextarea[expectIndex].dispatchEvent(event);
-            }
+            inputText("[" + value + "]")
             handleCancel();
           }}
         />

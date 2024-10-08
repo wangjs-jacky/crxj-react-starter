@@ -123,8 +123,12 @@ const downloadContent = (filename: string, content: any[]) => {
 async function getCurrentTab() {
   let queryOptions = { active: true, lastFocusedWindow: true };
   let [tab] = await chrome.tabs.query(queryOptions);
-  const arr = (tab?.url || "").split("/") || [];
-  return { ...tab, caseId: arr[arr.length - 1] || 0 };
+  const url = tab?.url || "";
+  const moduleMatch = url.match(/module\/(\d+)/);
+  const moduleId = moduleMatch ? moduleMatch[1] : null;
+  const caseMatch = url.match(/case\/(\d+)/);
+  const caseId = caseMatch ? caseMatch[1] : null;
+  return { ...tab, caseId, moduleId };
 }
 
 function createMapByKey(MAP_KET: string) {
