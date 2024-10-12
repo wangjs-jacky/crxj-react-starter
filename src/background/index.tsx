@@ -104,14 +104,14 @@ chrome.runtime.onInstalled.addListener((details) => {
   })
 });
 
-const downloadContent = (filename: string, content: any[]) => {
+const downloadContent = (filename: string, content: string) => {
   try {
-    const dataUrl = `data:text/plain;charset=utf-8,${encodeURIComponent(JSON.stringify(content))}`;
+    const dataUrl = `data:application/octet-stream;charset=utf-8,${encodeURIComponent(content)}`;
     chrome.downloads.download({
       url: dataUrl,
       filename: filename,
-      saveAs: true,
-      conflictAction: 'prompt'
+      saveAs: false,
+      conflictAction: 'overwrite',
     }, () => {
       // URL.revokeObjectURL(dataUrl); // 清理 URL 对象
     });
@@ -203,15 +203,11 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
   let steps = []
 
   switch (type || command) {
-    case 'down':
-      const tab = await getCurrentTab();
-      downloadContent(`case_${tab.caseId}.tsx`, result);
-      break;
-
     // 解析页面元素
     // 1. 句子通过 "♀" 分段。
     // 2. 预处理，将除字符串外的部分 () 删掉。
     // 3. 将文本中的 [], 进行替换，对于不存在的 testID 进行弹窗提示。
+    case 'down':
     case 'copyToClipboard':
     case 'checkTestID':
       steps = result.map(res => {
@@ -228,6 +224,11 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
         sendResponse({
           copyText: `${titleStr}\n${urlStr}\n${contentStr}`, notFoundTestID
         });
+      }
+      if (command === "down") {
+        const tab = await getCurrentTab();
+        downloadContent(`case_${tab.caseId}.tsx`, `export default \`${titleStr}\n${urlStr}\n${contentStr}\n\`;`);
+        break;
       }
       break;
     case 'parseHtml':

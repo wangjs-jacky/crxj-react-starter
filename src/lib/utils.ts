@@ -22,12 +22,21 @@ export function convertToObj(testIDStr) {
 
 export function replaceTestID(str, obj) {
   const notFoundTestID = new Set();
-  const result = str.replace(/\[(.*?)\]/g, (match, p1) => {
+  let originStr = str;
+  str = str.replace(/创单成功.*/g, "")
+  // 获取未匹配到的字符串
+  str.replace(/\[(.*?)\]/g, (match, p1) => {
     if (obj[p1] !== undefined) {
       return `[${obj[p1]}]`;
     } else {
       notFoundTestID.add(p1);
       return match;
+    }
+  });
+  // TODO: 代码过于冗余，后续优化
+  const result = originStr.replace(/\[(.*?)\]/g, (match, p1) => {
+    if (obj[p1] !== undefined) {
+      return `[${obj[p1]}]`;
     }
   });
 
