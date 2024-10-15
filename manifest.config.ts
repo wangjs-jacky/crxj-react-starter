@@ -43,6 +43,5 @@ export default defineManifest(async (env) => ({
     "tabs",
     "storage",
     "clipboardWrite",
-    "clipboardRead",
   ]
 }));

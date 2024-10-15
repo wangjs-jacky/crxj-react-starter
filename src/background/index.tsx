@@ -227,7 +227,7 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       }
       if (command === "down") {
         const tab = await getCurrentTab();
-        downloadContent(`case_${tab.caseId}.tsx`, `export default \`${titleStr}\n${urlStr}\n${contentStr}\n\`;`);
+        downloadContent(`${tab.caseId}.js`, `export default \`${titleStr}\n${urlStr}\n${contentStr}\n\`;`);
         break;
       }
       break;
