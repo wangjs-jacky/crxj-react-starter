@@ -25,7 +25,7 @@ export default defineManifest(async (env) => ({
       // 这边为什么可以使用 <> 去使用，非常 nice 的想法
       // matches: ["<all_urls>"],
       matches: [
-        "https://testhub.package.ctripcorp.com/*",
+        "https://testhub.package.ctripcorp.com/library/*",
         "file:///Users/jiashengwang/Downloads/*"
       ],
       js: ["src/scripts/content-scripts.tsx"],

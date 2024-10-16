@@ -11,7 +11,8 @@ document.addEventListener('mouseover', () => {
 function parseTableElement() {
   const tableRows = document.querySelectorAll('tbody tr');
   const result: { 步骤编号: string | null; 步骤描述: any; 预期结果: any; }[] = [];
-  const url = document.querySelector("div.ant-row.precondition p a")?.href;
+  let aTag = document.querySelector("div.ant-row.precondition p a");
+  const url = aTag?.innerText || aTag?.href;
   tableRows.forEach(row => {
     const stepNumber = row.querySelector('td:nth-child(1) span').textContent;
     // @ts-ignore

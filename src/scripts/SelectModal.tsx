@@ -199,26 +199,14 @@ export const useSelectModal = (config?: any) => {
     >
       <Space direction="vertical" style={{ display: "flex" }}>
         <Space.Compact block style={{ marginBottom: "10px" }}>
-          <Button onClick={() => {
-            inputText("展示")
-            handleCancel();
-          }}>展示</Button>
-          <Button onClick={() => {
-            inputText("暗文展示")
-            handleCancel();
-          }}>暗文展示</Button>
-          <Button onClick={() => {
-            inputText("点击")
-            handleCancel();
-          }}>点击</Button>
-          <Button onClick={() => {
-            inputText("输入")
-            handleCancel();
-          }}>输入</Button>
-          <Button onClick={() => {
-            inputText("()")
-            handleCancel();
-          }}>注释</Button>
+          {
+            ["展示", "暗文展示", "点击", "输入", "()", "关闭", "创单成功", "toast提示", "等待", "@MockID", "不展示", "@value"].map(text => {
+              return <Button onClick={() => {
+                inputText(text)
+                handleCancel();
+              }}>{text}</Button>
+            })
+          }
           <Tooltip title="拷贝 testID 对象">
             <Button icon={<CopyFilled />} onClick={() => {
               navigator.clipboard.writeText(JSON.stringify(testIDMap, null, 2))
