@@ -92,7 +92,6 @@ export const useSelectModal = (config?: any) => {
   const [messageApi, contextHolder] = message.useMessage();
 
   const { selectOptions, testIDMap } = config || {};
-  console.log("wjs: selectOptions", selectOptions, isStickyTop);
 
   const [stepIndex, setStepIndex] = useState(-1);
   const [expectIndex, setExpectIndex] = useState(-1);
@@ -102,6 +101,23 @@ export const useSelectModal = (config?: any) => {
       closeModal();
     }
   }
+
+  const KEYWORDS = [
+    { text: "展示" },
+    { text: "展示 \"\"", cursorPostion: 1 },
+    { text: "暗文展示" },
+    { text: "暗文展示 \"\"", cursorPostion: 1 },
+    { text: "点击" },
+    { text: "输入" },
+    { text: "()", cursorPostion: 1 },
+    { text: "关闭" },
+    { text: "创单成功" },
+    { text: "toast提示" },
+    { text: "等待" },
+    { text: "@MockID" },
+    { text: "不展示" },
+    { text: "@value" }
+  ];
 
   const inputText = (text: string) => {
     const event = new Event('input', {
@@ -130,7 +146,7 @@ export const useSelectModal = (config?: any) => {
     stepContainer.forEach((item, index) => {
       item.addEventListener('input', function (event) {
         // 检查按下的键是否为 '[' 键
-        if (event.data === '[') {
+        if (event.data === '[' || event.data === ']') {
           // 手工执行 backspace 的 input 事件
           item.value = item.value.slice(0, -1);
           item.dispatchEvent(new Event('input', {
@@ -143,6 +159,7 @@ export const useSelectModal = (config?: any) => {
       item.addEventListener('focus', function (event) {
         if (event.target instanceof HTMLTextAreaElement) {
           setStepIndex(stepContainer.indexOf(event.target))
+          setExpectIndex(-1);
         }
       })
     })
@@ -151,7 +168,7 @@ export const useSelectModal = (config?: any) => {
     expectContainer.forEach((item, index) => {
       item.addEventListener('input', function (event) {
         // 检查按下的键是否为 '[' 键
-        if (event.data === '[') {
+        if (event.data === '[' || event.data === ']') {
           // 手工执行 backspace 的 input 事件
           item.value = item.value.slice(0, -1);
           item.dispatchEvent(new Event('input', {
@@ -163,7 +180,8 @@ export const useSelectModal = (config?: any) => {
       });
       item.addEventListener('focus', function (event) {
         if (event.target instanceof HTMLTextAreaElement) {
-          setStepIndex(stepContainer.indexOf(event.target))
+          setStepIndex(-1);
+          setExpectIndex(expectContainer.indexOf(event.target))
         }
       })
     })
@@ -209,9 +227,9 @@ export const useSelectModal = (config?: any) => {
     >
       <Space.Compact block>
         {
-          ["展示", "暗文展示", "点击", "输入", "()", "关闭", "创单成功", "toast提示", "等待", "@MockID", "不展示", "@value"].map(text => {
+          KEYWORDS.map(({ text, cursorPostion }) => {
             return <Button onClick={() => {
-              inputText(text)
+              inputText(text, cursorPostion)
               handleCancel();
             }}>{text}</Button>
           })
