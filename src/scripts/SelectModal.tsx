@@ -1,6 +1,6 @@
 import { EXPECT_CSS_SELECTOR, STEPS_CSS_SELECTOR } from "@/constant";
 import { CopyFilled } from "@ant-design/icons";
-import { Button, Flex, message, Modal, notification, Select, Space, Tooltip } from "antd";
+import { Button, Divider, Input, message, Modal, Select, Space, Tooltip } from "antd";
 import { useEffect, useRef, useState } from "react";
 import type { DraggableData, DraggableEvent } from "react-draggable";
 import Draggable from "react-draggable";
@@ -129,9 +129,6 @@ export const useSelectModal = (config?: any) => {
     // 为元素绑定 input 监听事件
     stepContainer.forEach((item, index) => {
       item.addEventListener('input', function (event) {
-        if (event.target instanceof HTMLTextAreaElement) {
-          setStepIndex(stepContainer.indexOf(event.target))
-        }
         // 检查按下的键是否为 '[' 键
         if (event.data === '[') {
           // 手工执行 backspace 的 input 事件
@@ -143,14 +140,16 @@ export const useSelectModal = (config?: any) => {
           showModal();
         }
       });
+      item.addEventListener('focus', function (event) {
+        if (event.target instanceof HTMLTextAreaElement) {
+          setStepIndex(stepContainer.indexOf(event.target))
+        }
+      })
     })
 
     // 为元素绑定 input 监听事件
     expectContainer.forEach((item, index) => {
       item.addEventListener('input', function (event) {
-        if (event.target instanceof HTMLTextAreaElement) {
-          setExpectIndex(expectContainer.indexOf(event.target))
-        }
         // 检查按下的键是否为 '[' 键
         if (event.data === '[') {
           // 手工执行 backspace 的 input 事件
@@ -162,13 +161,24 @@ export const useSelectModal = (config?: any) => {
           showModal();
         }
       });
+      item.addEventListener('focus', function (event) {
+        if (event.target instanceof HTMLTextAreaElement) {
+          setStepIndex(stepContainer.indexOf(event.target))
+        }
+      })
     })
+
   }, []);
 
   const instance = {
     showModal,
     closeModal
   }
+
+  const [inputValue, setInputValue] = useState("");
+  const clearInput = () => {
+    setInputValue("")
+  };
 
   const ele = (
     <Modal
@@ -197,42 +207,54 @@ export const useSelectModal = (config?: any) => {
         </div>
       }
     >
-      <Space direction="vertical" style={{ display: "flex" }}>
-        <Space.Compact block style={{ marginBottom: "10px" }}>
-          {
-            ["展示", "暗文展示", "点击", "输入", "()", "关闭", "创单成功", "toast提示", "等待", "@MockID", "不展示", "@value"].map(text => {
-              return <Button onClick={() => {
-                inputText(text)
-                handleCancel();
-              }}>{text}</Button>
-            })
-          }
-          <Tooltip title="拷贝 testID 对象">
-            <Button icon={<CopyFilled />} onClick={() => {
-              navigator.clipboard.writeText(JSON.stringify(testIDMap, null, 2))
-                .then(() => {
-                  messageApi.open({
-                    type: 'success',
-                    content: 'TESTID 拷贝成功',
-                    duration: 1,
-                  })
+      <Space.Compact block>
+        {
+          ["展示", "暗文展示", "点击", "输入", "()", "关闭", "创单成功", "toast提示", "等待", "@MockID", "不展示", "@value"].map(text => {
+            return <Button onClick={() => {
+              inputText(text)
+              handleCancel();
+            }}>{text}</Button>
+          })
+        }
+        <Tooltip title="拷贝 testID 对象">
+          <Button icon={<CopyFilled />} onClick={() => {
+            navigator.clipboard.writeText(JSON.stringify(testIDMap, null, 2))
+              .then(() => {
+                messageApi.open({
+                  type: 'success',
+                  content: 'TESTID 拷贝成功',
+                  duration: 1,
                 })
-            }} />
-          </Tooltip>
-        </Space.Compact>
-        <Select
-          showSearch
-          value={"搜索选择 testID"}
-          style={{ width: '100%' }}
-          placeholder="搜索选择 testID"
-          optionFilterProp="label"
-          options={selectOptions}
-          onSelect={(value) => {
-            inputText("[" + value + "]")
-            handleCancel();
-          }}
-        />
-      </Space>
+              })
+          }} />
+        </Tooltip>
+      </Space.Compact>
+      <Divider style={{ margin: "10px 0" }} />
+      <Select
+        showSearch
+        value={"搜索选择 testID"}
+        style={{ width: '100%' }}
+        placeholder="搜索选择 testID"
+        optionFilterProp="label"
+        options={selectOptions}
+        onSelect={(value) => {
+          inputText("[" + value + "]")
+          handleCancel();
+        }}
+      />
+      <Divider style={{ margin: "10px 0" }} />
+
+      <Input
+        value={inputValue}
+        addonBefore={"内容输入"}
+        onInput={(e) => {
+          setInputValue(e.target?.value)
+        }}
+        onPressEnter={(e) => {
+          inputText(e.target?.value)
+          clearInput();
+          handleCancel();
+        }} />
 
       {contextHolder}
     </Modal>

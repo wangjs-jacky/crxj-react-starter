@@ -1,6 +1,5 @@
-import { convertToObj, findAllMatches, replaceTestID } from "@/lib/utils";
+import { replaceTestID } from "@/lib/utils";
 import { preprocess } from "./preprocess";
-import axios from "@/lib/axios";
 console.log("🔥 Hello from background (src/background/index.ts)");
 
 const KEY = "trip_ottd_online_redirect_config";
