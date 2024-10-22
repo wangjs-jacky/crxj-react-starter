@@ -225,11 +225,25 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
         });
       }
       if (command === "down") {
-        const tab = await getCurrentTab();
-        downloadContent(`${tab.caseId}.js`, `export default \`${titleStr}\n${urlStr}\n${contentStr}\n\`;`);
+        let tabCaseId = "";
+        if (message.data) {
+          tabCaseId = message?.data?.caseId;
+          const _titleStr = `{${tabCaseId}}` + "-" + message?.data?.title;
+          titleStr = `
+\\\`\\\`\\\`info
+${_titleStr}
+\\\`\\\`\\\`
+    `
+        } else {
+          tabCaseId = (await getCurrentTab()).caseId;
+        }
+        downloadContent(`${tabCaseId}.js`, `export default \`${titleStr}\n${urlStr}\n${contentStr}\n\`;`);
         break;
       }
       break;
+    case 'newTab':
+      chrome.tabs.create({ url: message.url });
+      break
     case 'parseHtml':
       updateInfo(message?.url);
       result = data;

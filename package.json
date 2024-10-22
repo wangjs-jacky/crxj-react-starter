@@ -1,7 +1,7 @@
 {
   "name": "crxjs-react-starter",
   "private": true,
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "HTA 文本提取器",
   "scripts": {
     "dev": "vite",

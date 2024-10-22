@@ -138,7 +138,10 @@ export const HTATextExtractor = () => {
   //   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   //     if (message.type === "getTabInfo") {
   //       const { moduleId } = message.data || {};
-  //       setModuleId(moduleId);
+  //       console.log("wjs: message", message);
+  //       if (message.data.url.indexOf("?download=true") > -1) {
+  //         chrome.runtime.sendMessage({ command: "down" })
+  //       }
   //     }
   //   });
   // }, []);
