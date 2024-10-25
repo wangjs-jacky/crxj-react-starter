@@ -78,6 +78,7 @@ const useDraggableProps = (config?: any) => {
   return {
     modalProps,
     showModal,
+    open,
     closeModal,
     DragContainer,
   }
@@ -88,7 +89,7 @@ export const useSelectModal = (config?: any) => {
   // 是否置顶
   const [isStickyTop, setIsStickyTop] = useState(false);
 
-  const { closeModal, showModal, DragContainer, modalProps } = useDraggableProps();
+  const { closeModal, showModal, DragContainer, modalProps, open } = useDraggableProps();
   const [messageApi, contextHolder] = message.useMessage();
 
   const { selectOptions, testIDMap } = config || {};
@@ -142,51 +143,76 @@ export const useSelectModal = (config?: any) => {
     // 期待描述区域
     const expectContainer = Array.from(document.querySelectorAll(EXPECT_CSS_SELECTOR));
 
-    // 为元素绑定 input 监听事件
-    stepContainer.forEach((item, index) => {
-      item.addEventListener('input', function (event) {
+    const handleStepInput = (event) => {
+      console.log("wjs: open-123", open, event);
+      if (!open) {
         // 检查按下的键是否为 '[' 键
         if (event.data === '[' || event.data === ']') {
           // 手工执行 backspace 的 input 事件
-          item.value = item.value.slice(0, -1);
-          item.dispatchEvent(new Event('input', {
+          event.target.value = event.target.value.slice(0, -1);
+          event.target.dispatchEvent(new Event('input', {
             bubbles: true,
             cancelable: true,
           }));
           showModal();
         }
-      });
-      item.addEventListener('focus', function (event) {
-        if (event.target instanceof HTMLTextAreaElement) {
-          setStepIndex(stepContainer.indexOf(event.target))
-          setExpectIndex(-1);
-        }
-      })
-    })
+      }
+    };
 
-    // 为元素绑定 input 监听事件
-    expectContainer.forEach((item, index) => {
-      item.addEventListener('input', function (event) {
+    const handleStepFocus = (event) => {
+      if (event.target instanceof HTMLTextAreaElement) {
+        setStepIndex(stepContainer.indexOf(event.target));
+        setExpectIndex(-1);
+      }
+    };
+
+    const handleExpectInput = (event) => {
+      if (!open) {
         // 检查按下的键是否为 '[' 键
         if (event.data === '[' || event.data === ']') {
           // 手工执行 backspace 的 input 事件
-          item.value = item.value.slice(0, -1);
-          item.dispatchEvent(new Event('input', {
+          event.target.value = event.target.value.slice(0, -1);
+          event.target.dispatchEvent(new Event('input', {
             bubbles: true,
             cancelable: true,
           }));
           showModal();
         }
-      });
-      item.addEventListener('focus', function (event) {
-        if (event.target instanceof HTMLTextAreaElement) {
-          setStepIndex(-1);
-          setExpectIndex(expectContainer.indexOf(event.target))
-        }
-      })
-    })
+      }
+    };
 
-  }, []);
+    const handleExpectFocus = (event) => {
+      if (event.target instanceof HTMLTextAreaElement) {
+        setStepIndex(-1);
+        setExpectIndex(expectContainer.indexOf(event.target));
+      }
+    };
+
+    // 为元素绑定 input 和 focus 监听事件
+    stepContainer.forEach((item) => {
+      item.addEventListener('input', handleStepInput);
+      item.addEventListener('focus', handleStepFocus);
+    });
+
+    // 为元素绑定 input 和 focus 监听事件
+    expectContainer.forEach((item) => {
+      item.addEventListener('input', handleExpectInput);
+      item.addEventListener('focus', handleExpectFocus);
+    });
+
+    return () => {
+      // 卸载组件时移除事件监听器
+      stepContainer.forEach((item) => {
+        item.removeEventListener('input', handleStepInput);
+        item.removeEventListener('focus', handleStepFocus);
+      });
+
+      expectContainer.forEach((item) => {
+        item.removeEventListener('input', handleExpectInput);
+        item.removeEventListener('focus', handleExpectFocus);
+      });
+    };
+  }, [open]);
 
   const instance = {
     showModal,
