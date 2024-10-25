@@ -1,0 +1,40 @@
+diff --git a/dist/index.cjs b/dist/index.cjs
+index ddf06b48cc86250e5c72c6101a43303de9ba8a03..80211b891cb9b4f02f499099d470de0ccd77b73c 100644
+--- a/dist/index.cjs
++++ b/dist/index.cjs
+@@ -3263,7 +3263,7 @@ const pluginResources = ({ contentScripts = {} }) => {
+               ...rest
+             })).filter(({ resources }) => resources.length);
+             manifest.web_accessible_resources.push({
+-              use_dynamic_url: true,
++              use_dynamic_url: false,
+               matches: ["<all_urls>"],
+               resources: ["**/*", "*"]
+             });
+@@ -3345,7 +3345,7 @@ const pluginResources = ({ contentScripts = {} }) => {
+                     const resource = {
+                       matches: script.matches,
+                       resources: [...assets, ...imports],
+-                      use_dynamic_url: true
++                      use_dynamic_url: false
+                     };
+                     if (css.size)
+                       if (injectCss) {
+@@ -3404,7 +3404,7 @@ const pluginResources = ({ contentScripts = {} }) => {
+             manifest.web_accessible_resources.push({
+               matches,
+               resources: [...set],
+-              use_dynamic_url
++              use_dynamic_url: false
+             });
+           }
+         } else {
+@@ -3546,7 +3546,7 @@ const pluginBackground = () => {
+ const defineManifest = (manifest) => manifest;
+ const defineDynamicResource = ({
+   matches = ["http://*/*", "https://*/*"],
+-  use_dynamic_url = true
++  use_dynamic_url = false
+ }) => ({
+   matches,
+   resources: [dynamicResourcesName],
