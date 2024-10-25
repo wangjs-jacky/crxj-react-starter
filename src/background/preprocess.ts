@@ -45,6 +45,11 @@ function processBracketsText(str) {
       reg: /'([^']*?)'/g
     },
     {
+      // 匹配 {@value: }
+      name: "valueReg",
+      reg: /{\s*@value:\s*([^}]*?)\s*}/g
+    },
+    {
       // 匹配括号
       name: "QuotesReg",
       reg: [

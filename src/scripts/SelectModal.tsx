@@ -116,7 +116,7 @@ export const useSelectModal = (config?: any) => {
     { text: "等待" },
     { text: "@MockID" },
     { text: "不展示" },
-    { text: "@value" }
+    { text: "{@value: }" }
   ];
 
   const inputText = (text: string) => {
