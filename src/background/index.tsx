@@ -166,12 +166,12 @@ let _tabInfo = {} as any;
 // testID 字符串
 let testIDStr = "";
 let urlStr = "";
-
+let platformStr = "";
 
 let testIDMap = {};
 
 
-function updateInfo(url) {
+function updateInfo(url, platform) {
   getCurrentTab().then((tabInfo) => {
     _tabInfo = tabInfo;
     const _titleStr = `{${tabInfo?.caseId}}` + "-" + tabInfo?.title;
@@ -180,7 +180,7 @@ function updateInfo(url) {
 ${_titleStr}
 \\\`\\\`\\\`
     `
-  })
+  });
   getTestIDMapConfig().then((res) => {
     testIDStr = res["xtaro-ticket"];
   });
@@ -188,9 +188,15 @@ ${_titleStr}
   // 更新 URL（后续调整所有的结构）
   urlStr = `
 \\\`\\\`\\\`url
-${url}
+${url || ""}
 \\\`\\\`\\\`
-`
+`;
+  // 更新 platform 平台（后续调整所有的结构）
+  platformStr = `
+\\\`\\\`\\\`platform
+${platform.join(",")}
+\\\`\\\`\\\`
+`;
 }
 
 let result: any[] = [];
@@ -221,23 +227,29 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       console.log("wjs: command", command);
       if (command === "copyToClipboard") {
         sendResponse({
-          copyText: `${titleStr}\n${urlStr}\n${contentStr}`, notFoundTestID
+          copyText: `${titleStr} \n${urlStr} \n${platformStr} \n${contentStr} `, notFoundTestID
         });
       }
       if (command === "down") {
         let tabCaseId = "";
         if (message.data) {
           tabCaseId = message?.data?.caseId;
-          const _titleStr = `{${tabCaseId}}` + "-" + message?.data?.title;
+          const platform = message?.data?.platform;
+          const _titleStr = `{${tabCaseId}} ` + "-" + message?.data?.title;
           titleStr = `
-\\\`\\\`\\\`info
+  \\\`\\\`\\\`info
 ${_titleStr}
 \\\`\\\`\\\`
-    `
+    `;
+          platformStr = `
+    \\\`\\\`\\\`platform
+    ${(platform || []).join(",")}
+    \\\`\\\`\\\`
+    `;
         } else {
           tabCaseId = (await getCurrentTab()).caseId;
         }
-        downloadContent(`${tabCaseId}.js`, `export default \`${titleStr}\n${urlStr}\n${contentStr}\n\`;`);
+        downloadContent(`${tabCaseId}.js`, `export default \`${titleStr}\n${urlStr}\n${platformStr}\n${contentStr}\n\`;`);
         break;
       }
       break;
@@ -245,7 +257,7 @@ ${_titleStr}
       chrome.tabs.create({ url: message.url });
       break
     case 'parseHtml':
-      updateInfo(message?.url);
+      updateInfo(message?.url, message?.platform);
       result = data;
       break;
 

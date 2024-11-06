@@ -15,6 +15,7 @@ export function parseTableElement(env = document, payload?) {
   const result: { 步骤编号: string | null; 步骤描述: any; 预期结果: any; }[] = [];
   let aTag = env.querySelector("div.ant-row.precondition p a");
   const url = aTag?.innerText || aTag?.href;
+  let platform = Array.from(env.querySelector('#rowId .platform')?.querySelectorAll(".ant-select-selection-overflow-item") || []).map(item => item.innerText).filter(Boolean)
   tableRows.forEach(row => {
     const stepNumber = row.querySelector('td:nth-child(1) span')?.textContent;
     // @ts-ignore
@@ -27,7 +28,7 @@ export function parseTableElement(env = document, payload?) {
       '预期结果': expectedResults?.replaceAll("“", "\"")?.replaceAll("”", "\""),
     });
   });
-  chrome.runtime.sendMessage({ type: 'parseHtml', data: result, url: url });
+  chrome.runtime.sendMessage({ type: 'parseHtml', data: result, url: url, platform });
   if (env !== document) {
     chrome.runtime.sendMessage({ command: "down", data: payload });
   }
