@@ -149,7 +149,15 @@ export const HTATextExtractor = () => {
   useEffect(() => {
     const main = async () => {
       // 获取数据
-      const response = await axios.get("/restapi/ttd/bff/qconfig");
+      const response = await axios.get("/restapi/ttd/bff/qconfig").catch(err => {
+        api.error({
+          message: "TESTID 映射关系表获取失败",
+          description: err.message + ", 请检查 https://www.fat1.qa.nt.tripqate.com/restapi/ttd/bff/qconfig 接口",
+          placement: "bottomRight",
+          duration: 5
+        })
+      })
+
       const pageKey = document.querySelectorAll("div.ant-breadcrumb > span a")?.[3]?.title;
       if (response) {
         const { data } = response;
