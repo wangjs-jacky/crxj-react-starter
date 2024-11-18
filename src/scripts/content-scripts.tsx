@@ -28,7 +28,8 @@ export function parseTableElement(env = document, payload?) {
       '预期结果': expectedResults?.replaceAll("“", "\"")?.replaceAll("”", "\""),
     });
   });
-  chrome.runtime.sendMessage({ type: 'parseHtml', data: result, url: url, platform });
+  const brumbArr = Array.from(document.querySelectorAll("div.ant-breadcrumb > span a")).map(item => item.title)
+  chrome.runtime.sendMessage({ type: 'parseHtml', data: result, url: url, platform, brumbArr });
   if (env !== document) {
     chrome.runtime.sendMessage({ command: "down", data: payload });
   }

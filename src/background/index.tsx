@@ -167,11 +167,11 @@ let _tabInfo = {} as any;
 let testIDStr = "";
 let urlStr = "";
 let platformStr = "";
-
+let brumbStr = "";
 let testIDMap = {};
 
 
-function updateInfo(url, platform) {
+function updateInfo(url, platform, brumbArr) {
   getCurrentTab().then((tabInfo) => {
     _tabInfo = tabInfo;
     const _titleStr = `{${tabInfo?.caseId}}` + "-" + tabInfo?.title;
@@ -197,6 +197,12 @@ ${url || ""}
 ${platform.join(",")}
 \\\`\\\`\\\`
 `;
+  // 更新面包屑
+  brumbStr = `
+\\\`\\\`\\\`page
+${brumbArr.join("/")}
+\\\`\\\`\\\`
+`
 }
 
 let result: any[] = [];
@@ -224,10 +230,10 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
       // 合并字符串（方便 testID 依赖收集）
       const contentStr = steps.join("");
       const { notFoundTestID } = replaceTestID(contentStr, testIDMap);
-      console.log("wjs: command", command);
+      console.log("wjs: command", command, brumbStr);
       if (command === "copyToClipboard") {
         sendResponse({
-          copyText: `${titleStr} \n${urlStr} \n${platformStr} \n${contentStr} `, notFoundTestID
+          copyText: `${titleStr} \n${urlStr} \n${platformStr} \n${brumbStr} \n${contentStr}  `, notFoundTestID
         });
       }
       if (command === "down") {
@@ -235,6 +241,7 @@ chrome.runtime.onMessage.addListener(async function (message, sender, sendRespon
         if (message.data) {
           tabCaseId = message?.data?.caseId;
           const platform = message?.data?.platform;
+          const brumbArr = message?.data?.brumbArr;
           const _titleStr = `{${tabCaseId}} ` + "-" + message?.data?.title;
           titleStr = `
   \\\`\\\`\\\`info
@@ -246,10 +253,15 @@ ${_titleStr}
     ${(platform || []).join(",")}
     \\\`\\\`\\\`
     `;
+         brumbStr = `
+\\\`\\\`\\\`page
+${brumbArr.join("/")}
+\\\`\\\`\\\`
+`
         } else {
           tabCaseId = (await getCurrentTab()).caseId;
         }
-        downloadContent(`${tabCaseId}.js`, `export default \`${titleStr}\n${urlStr}\n${platformStr}\n${contentStr}\n\`;`);
+        downloadContent(`${tabCaseId}.js`, `export default \`${titleStr}\n${urlStr}\n${platformStr}\n${brumbStr}\n${contentStr}\n\`;`);
         break;
       }
       break;
@@ -257,7 +269,7 @@ ${_titleStr}
       chrome.tabs.create({ url: message.url });
       break
     case 'parseHtml':
-      updateInfo(message?.url, message?.platform);
+      updateInfo(message?.url, message?.platform, message?.brumbArr);
       result = data;
       break;
 

@@ -21,10 +21,12 @@ export const BatchDownload: React.FC = () => {
           // 使用 DOMParser 解析 HTML 字符串
           const parser = new DOMParser();
           const doc = parser.parseFromString(htmlString, 'text/html');
+          const brumbArr = Array.from(doc.querySelectorAll("div.ant-breadcrumb > span a")).map(item => item.title)
           parseTableElement(doc, {
             caseId: id,
             title: doc.querySelector('div.title-main > div > textarea')?.value,
-            platform: Array.from(platformGroups[index] || [])?.map(item => item?.innerText)
+            platform: Array.from(platformGroups[index] || [])?.map(item => item?.innerText),
+            brumbArr: brumbArr
           })
         })
         .catch(error => console.error('Download error:', error));
