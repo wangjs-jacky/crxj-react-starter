@@ -133,7 +133,6 @@ export const HTATextExtractor = () => {
   // useEffect(() => {
   //   // 在 background.js 中获取 url 信息
   //   chrome.runtime.sendMessage({ type: 'getTabInfo' });
-
   //   // 设置 moduleId 信息
   //   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   //     if (message.type === "getTabInfo") {
@@ -177,7 +176,7 @@ export const HTATextExtractor = () => {
       {/* 弹窗环境 */}
       {modalContextHolder}
       <Space>
-        <Button type="primary" onClick={() => {
+        {/* <Button type="primary" onClick={() => {
           chrome.runtime.sendMessage({ command: "copyToClipboard" }, (response) => {
             if (response) {
               const { notFoundTestID } = response || {};
@@ -191,10 +190,33 @@ export const HTATextExtractor = () => {
               })
             }
           });
-        }}>生成 test 代码</Button>
+        }}>生成 test 代码</Button> */}
         <Button type="primary" onClick={() => {
           chrome.runtime.sendMessage({ command: "down" })
         }}>下载脚本</Button>
+        <Button type="primary" onClick={() => {
+          let aTag = document.querySelector("div.ant-row.precondition p a");
+          let url = aTag?.innerText || aTag?.href;
+          if(!url){
+            api.error({
+              message: "未在前置条件中找到链接，请补充后尝试",
+              placement: "bottomRight",
+              duration: 5
+            })
+            return;
+          }
+          const mockID = (document.querySelector("td:nth-child(3) > div > textarea").value || "").match(/@mockid:(\d+)/i)?.[1];
+          if(!mockID){
+            api.error({
+              message: "mockID 未找到",
+              placement: "bottomRight",
+              duration: 5
+            })
+            return;
+          }
+          url += `&testhubMockId=${mockID}`
+          chrome.runtime.sendMessage({ command: "newTab" , url: url})
+        }}>预览</Button>
         <Tooltip placement="right" title="您可以在 chrome://settings/downloads 中设置: 关闭下载前询问每个文件的保存位置">
           <CircleAlert size={18} style={{ display: "flex", cursor: "pointer" }} />
         </Tooltip>
