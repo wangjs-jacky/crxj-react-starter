@@ -163,7 +163,6 @@ export const useSelectModal = (config?: any) => {
     const expectContainer = Array.from(document.querySelectorAll(EXPECT_CSS_SELECTOR));
 
     const handleStepInput = (event) => {
-
       // 检查按下的键是否为 '[' 键
       if (event.data === '[' || event.data === ']') {
         // if (!open) {
@@ -173,21 +172,22 @@ export const useSelectModal = (config?: any) => {
           bubbles: true,
           cancelable: true,
         }));
-        setInputValue(event.target.value)
         showModal();
         // }
       }
+      setInputValue(event.target.value)
     };
 
     const handleStepFocus = (event) => {
       if (event.target instanceof HTMLTextAreaElement) {
+        setInputValue(event.target.value)
         setStepIndex(stepContainer.indexOf(event.target));
         setExpectIndex(-1);
       }
     };
 
     const handleExpectInput = (event) => {
-      if (!open) {
+      // if (!open) {
         // 检查按下的键是否为 '[' 键
         if (event.data === '[' || event.data === ']') {
           // 手工执行 backspace 的 input 事件
@@ -198,13 +198,15 @@ export const useSelectModal = (config?: any) => {
           }));
           showModal();
         }
-      }
+      // }
+      setInputValue(event.target.value)
     };
 
     const handleExpectFocus = (event) => {
       if (event.target instanceof HTMLTextAreaElement) {
         setStepIndex(-1);
         setExpectIndex(expectContainer.indexOf(event.target));
+        setInputValue(event.target.value)
       }
     };
 

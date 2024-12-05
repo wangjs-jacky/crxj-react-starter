@@ -162,7 +162,6 @@ export const HTATextExtractor = () => {
         const { data } = response;
         const { Response } = data || {};
         const _data = Response[HTA_TESTID_MAP] || {};
-        console.log("wjs: pageKey", pageKey, _data[pageKey]);
         setTestIDMap(_data[pageKey] || MockObject);
         chrome.runtime.sendMessage({ command: "qconfig", data: _data[pageKey] || MockObject })
       }

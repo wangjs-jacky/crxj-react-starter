@@ -24,8 +24,8 @@ export function parseTableElement(env = document, payload?) {
     const expectedResults = row.querySelector('td:nth-child(3) textarea')?.value;
     result.push({
       '步骤编号': stepNumber,
-      '步骤描述': stepDescription?.replaceAll("“", "\"")?.replaceAll("”", "\""),
-      '预期结果': expectedResults?.replaceAll("“", "\"")?.replaceAll("”", "\""),
+      '步骤描述': stepDescription?.replaceAll("“", "\"")?.replaceAll("”", "\"").replaceAll("\n",""),
+      '预期结果': expectedResults?.replaceAll("“", "\"")?.replaceAll("”", "\"").replaceAll("\n",""),
     });
   });
   const brumbArr = Array.from(document.querySelectorAll("div.ant-breadcrumb > span a")).map(item => item.title)
